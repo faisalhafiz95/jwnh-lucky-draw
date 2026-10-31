@@ -89,7 +89,7 @@ function render(){
  $('historyList').innerHTML=history.length?[...history].reverse().map(h=>'<div class="row"><div><b>'+esc(h.name)+'</b><div class="muted">'+esc(h.prize)+' · '+esc(h.time)+'</div></div></div>').join(''):'No records yet.';
  $('latest').innerHTML=history.length?[...history].reverse().slice(0,5).map(h=>'<div class="row"><b>'+esc(h.name)+'</b><span class="muted">'+esc(h.prize)+'</span></div>').join(''):'No winners yet.';
 }
-function setTab(tab){document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));['draw','people','admin','history'].forEach(id=>$(id).classList.toggle('hidden',id!==tab));}
+function setTab(tab){document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));['draw','settings','people','admin','history'].forEach(id=>$(id).classList.toggle('hidden',id!==tab));}
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 // Admin settings are intentionally hidden from the main navigation. Open with Ctrl+Shift+A, or click the title five times.
 let titleTapCount=0,titleTapReset=null;
