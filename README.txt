@@ -4,7 +4,7 @@ Files:
 - index.html: application interface
 - app.js: draw logic, participant management, confirmation, history and audit
 - manifest.webmanifest: installable app settings
-- sw.js: offline caching (cache version v2)
+- sw.js: offline caching (cache version v4)
 - icon.svg: application icon
 
 FEATURES
@@ -12,11 +12,13 @@ FEATURES
 - Dramatic synthesized sound effects and optional original background music
 - Rapid rolling-name animation with a large winner reveal and confetti
 - Winner confirmation prompt: Try Again / Next Prize
+- Draw sequence runs 5th → 4th → 3rd → 2nd → 1st Prize
+- Restart Draw clears confirmed winners and returns to 5th Prize while retaining participants, settings and audit log
 - 1st Prize remains organiser-selected (default recipient Sal); the method is recorded
 - Prizes 2-5 are randomly selected from eligible participants
 - Existing participant import, duplicate prevention, include/exclude, no-repeat setting
 - Winner history, undo last confirmed draw, audit log and CSV exports
-- JSON backup and restore
+- JSON backup and restore (Admin settings are hidden from the main navigation; open with Ctrl+Shift+A or click the app title five times)
 - Local browser storage and offline PWA support after first successful load
 
 IMPORTANT
@@ -29,4 +31,4 @@ DATA
 Participant names and draw records are stored locally in the browser on the device being used. Download a JSON backup before changing devices or clearing browser data. The audit log is an operational record stored in the same local browser storage; it is not tamper-proof or a secure external audit system.
 
 UPDATE NOTE
-If the PWA was previously installed, close and reopen it while online to allow the updated service worker (v2) to refresh the app files.
+If the PWA was previously installed, close and reopen it while online to allow the updated service worker (v4) to refresh the app files.
