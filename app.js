@@ -136,6 +136,15 @@ $('soundTest').addEventListener('click',()=>{fanfare();message('Dramatic sound t
 $('musicBtn').addEventListener('click',()=>musicTimer?stopMusic():startMusic());
 $('musicEnabled').addEventListener('change',()=>{if(!$('musicEnabled').checked)stopMusic();});
 $('presentationBtn').addEventListener('click',()=>{document.body.classList.toggle('presenting');$('presentationBtn').textContent=document.body.classList.contains('presenting')?'Exit presentation view':'Presentation view';});
+// In presentation view, clicking anywhere on the screen starts the current prize draw.
+// Keep the exit control and winner-confirmation dialog interactive without triggering an extra draw.
+document.addEventListener('click',e=>{
+ if(!document.body.classList.contains('presenting'))return;
+ if(e.target.closest('#presentationBtn, #confirmModal'))return;
+ if(busy||pending||!$('confirmModal').classList.contains('hidden'))return;
+ if(!$('draw').classList.contains('hidden'))beginDraw(false);
+});
+
 $('prizeAdminControls').addEventListener('click',e=>{const k=Number(e.target.dataset.overrideToggle);if(!k)return;const cfg=prizeOverrides[k]||{enabled:false,name:""};cfg.enabled=!cfg.enabled;prizeOverrides[k]=cfg;save();renderPrizeAdminControls();});
 $('prizeAdminControls').addEventListener('change',e=>{const k=Number(e.target.dataset.overrideName);if(!k)return;prizeOverrides[k]=prizeOverrides[k]||{enabled:false,name:""};prizeOverrides[k].name=e.target.value;if(k===1)firstPrizeName=e.target.value;save();});
 $('adminNoRepeat').addEventListener('change',()=>{adminNoRepeat=$('adminNoRepeat').checked;save();});

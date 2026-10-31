@@ -39,3 +39,5 @@ The audit log is not shown in the app interface. Winner history and its CSV expo
 Version 6: Explicitly hides any Audit Log navigation tab or audit-log section in the interface and refreshes the service-worker cache.
 
 Version 8 update: Admin settings now support an optional preselected participant for each prize (1st through 5th). Use Enable/Disable for each prize; disabled prizes are randomly drawn. Preselected selection method is retained in internal records and backups.
+
+Presentation view: click anywhere on the screen to start the current prize draw. The exit control and winner confirmation dialog remain interactive.
