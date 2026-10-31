@@ -4,7 +4,7 @@ Files:
 - index.html: application interface
 - app.js: draw logic, participant management, confirmation, history and audit
 - manifest.webmanifest: installable app settings
-- sw.js: offline caching (cache version v5)
+- sw.js: offline caching (cache version v6)
 - icon.svg: application icon
 
 FEATURES
@@ -31,7 +31,9 @@ DATA
 Participant names and draw records are stored locally in the browser on the device being used. Download a JSON backup before changing devices or clearing browser data. The audit log is an operational record stored in the same local browser storage; it is not tamper-proof or a secure external audit system.
 
 UPDATE NOTE
-If the PWA was previously installed, close and reopen it while online to allow the updated service worker (v5) to refresh the app files.
+If the PWA was previously installed, close and reopen it while online to allow the updated service worker (v6) to refresh the app files.
 
 DISPLAY PRIVACY
 The audit log is not shown in the app interface. Winner history and its CSV export show only the winner name, prize and time; they do not display the selection method. Internal selection metadata remains in local storage and JSON backups.
+
+Version 6: Explicitly hides any Audit Log navigation tab or audit-log section in the interface and refreshes the service-worker cache.
