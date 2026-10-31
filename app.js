@@ -20,54 +20,70 @@ function tone(freq,duration,when,type,gain){if(!$('soundEnabled').checked)return
 function tick(){
  if(!$('soundEnabled').checked)return;
  try{
-  const c=context();if(!c)return;
-  const t=c.currentTime;
+  const c=context();if(!c)return;const t=c.currentTime;
+  // Two-part mechanical reel click with a short metallic spring tail.
   const o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
-  o.type="square";o.frequency.setValueAtTime(1450+Math.random()*450,t);
-  o.frequency.exponentialRampToValueAtTime(520,t+.055);
-  f.type="highpass";f.frequency.value=650;
-  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+.065);
-  o.connect(f);f.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.07);
+  o.type="square";o.frequency.setValueAtTime(1850+Math.random()*650,t);
+  o.frequency.exponentialRampToValueAtTime(430,t+.045);
+  f.type="bandpass";f.frequency.setValueAtTime(2100,t);f.Q.value=1.8;
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.055,t+.003);g.gain.exponentialRampToValueAtTime(.0001,t+.075);
+  o.connect(f);f.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.08);
+  const sub=c.createOscillator(),sg=c.createGain();sub.type="sine";sub.frequency.setValueAtTime(1250+Math.random()*350,t+.012);
+  sg.gain.setValueAtTime(.0001,t+.012);sg.gain.exponentialRampToValueAtTime(.018,t+.016);sg.gain.exponentialRampToValueAtTime(.0001,t+.055);
+  sub.connect(sg);sg.connect(c.destination);sub.start(t+.012);sub.stop(t+.06);
  }catch(e){}
 }
 function fanfare(){
  if(!$('soundEnabled').checked)return;
- // Original casino-style ascending jackpot chime, followed by a bright celebratory flourish.
- const notes=[659,784,988,1319,1568,1976];
- notes.forEach((f,i)=>tone(f,.34,i*.105,"triangle",.085));
- [1047,1319,1568,2093].forEach((f,i)=>tone(f,.58,.78+i*.09,"sine",.07));
- [784,988,1175].forEach((f,i)=>tone(f,.75,1.18+i*.12,"square",.022));
+ // Original jackpot sequence: rising siren, bright bell cascade, then a full celebratory chord.
+ try{
+  const c=context();if(!c)return;const t=c.currentTime;
+  const sweep=c.createOscillator(),sg=c.createGain();sweep.type="sawtooth";
+  sweep.frequency.setValueAtTime(520,t);sweep.frequency.exponentialRampToValueAtTime(1560,t+.62);
+  sg.gain.setValueAtTime(.0001,t);sg.gain.exponentialRampToValueAtTime(.045,t+.08);sg.gain.exponentialRampToValueAtTime(.0001,t+.72);
+  sweep.connect(sg);sg.connect(c.destination);sweep.start(t);sweep.stop(t+.74);
+ }catch(e){}
+ [784,988,1175,1568,1976,2349].forEach((f,i)=>tone(f,.42,.48+i*.095,"sine",.09));
+ [1047,1319,1568,2093,2637].forEach((f,i)=>tone(f,.72,1.18+i*.075,"triangle",.075));
+ [523,659,784,1047].forEach(f=>tone(f,1.05,1.72,"sine",.065));
+ // Sparkling high notes over the final chord.
+ [2637,3136,3520].forEach((f,i)=>tone(f,.38,1.85+i*.12,"sine",.025));
 }
 function startMusic(){
  if(musicTimer)return;
  context();$('musicBtn').textContent="♫ Stop background music";
- // Original looping arcade/casino arpeggio with a soft low pulse and sparkling high notes.
+ // Original upbeat casino-show loop: bass pulse, chord stabs, rolling arpeggio and bell accents.
  const bass=[110,110,146.83,130.81,98,98,130.81,123.47];
- const arp=[659,784,988,1175,988,784,587,784,988,1319,1175,988,784,659,784,988];
+ const arp=[659,784,988,1175,1319,1175,988,784,587,784,988,1175,1568,1319,1175,988];
+ const chords=[[261.63,329.63,392],[293.66,369.99,440],[220,261.63,329.63],[246.94,311.13,369.99]];
  let step=0;
  musicTimer=setInterval(()=>{
   if(!$('musicEnabled').checked){stopMusic();return;}
-  const c=context();if(!c)return;
-  const t=c.currentTime;
+  const c=context();if(!c)return;const t=c.currentTime;
   try{
    const f=arp[step%arp.length],b=bass[Math.floor(step/2)%bass.length];
-   const o=c.createOscillator(),g=c.createGain();
-   o.type="triangle";o.frequency.setValueAtTime(f,t);
-   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.018,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+.19);
-   o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.2);
+   const note=c.createOscillator(),ng=c.createGain();note.type="triangle";note.frequency.setValueAtTime(f,t);
+   ng.gain.setValueAtTime(.0001,t);ng.gain.exponentialRampToValueAtTime(.022,t+.008);ng.gain.exponentialRampToValueAtTime(.0001,t+.17);
+   note.connect(ng);ng.connect(c.destination);note.start(t);note.stop(t+.18);
    if(step%2===0){
-    const bo=c.createOscillator(),bg=c.createGain();bo.type="sine";bo.frequency.setValueAtTime(b,t);
-    bg.gain.setValueAtTime(.0001,t);bg.gain.exponentialRampToValueAtTime(.025,t+.012);bg.gain.exponentialRampToValueAtTime(.0001,t+.22);
-    bo.connect(bg);bg.connect(c.destination);bo.start(t);bo.stop(t+.23);
+    const bo=c.createOscillator(),bg=c.createGain();bo.type="sawtooth";bo.frequency.setValueAtTime(b,t);
+    bg.gain.setValueAtTime(.0001,t);bg.gain.exponentialRampToValueAtTime(.028,t+.012);bg.gain.exponentialRampToValueAtTime(.0001,t+.24);
+    bo.connect(bg);bg.connect(c.destination);bo.start(t);bo.stop(t+.25);
    }
-   if(step%4===3){
-    const ch=c.createOscillator(),cg=c.createGain();ch.type="sine";ch.frequency.setValueAtTime(1760,t);
-    cg.gain.setValueAtTime(.0001,t);cg.gain.exponentialRampToValueAtTime(.012,t+.006);cg.gain.exponentialRampToValueAtTime(.0001,t+.12);
-    ch.connect(cg);cg.connect(c.destination);ch.start(t);ch.stop(t+.13);
+   if(step%4===0){
+    const chord=chords[Math.floor(step/4)%chords.length];
+    chord.forEach((hz,j)=>{const co=c.createOscillator(),cg=c.createGain();co.type="sine";co.frequency.setValueAtTime(hz,t);
+     cg.gain.setValueAtTime(.0001,t);cg.gain.exponentialRampToValueAtTime(.009,t+.015);cg.gain.exponentialRampToValueAtTime(.0001,t+.31);
+     co.connect(cg);cg.connect(c.destination);co.start(t);co.stop(t+.32);});
+   }
+   if(step%2===1){
+    const bell=c.createOscillator(),bg=c.createGain();bell.type="sine";bell.frequency.setValueAtTime(1760+(step%4)*220,t);
+    bg.gain.setValueAtTime(.0001,t);bg.gain.exponentialRampToValueAtTime(.014,t+.004);bg.gain.exponentialRampToValueAtTime(.0001,t+.14);
+    bell.connect(bg);bg.connect(c.destination);bell.start(t);bell.stop(t+.15);
    }
    step++;
   }catch(e){}
- },165);
+ },145);
 }
 function stopMusic(){if(musicTimer){clearInterval(musicTimer);musicTimer=null;}$('musicBtn').textContent="♫ Start background music";}
 function download(filename,content,type){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type:type||'text/csv;charset=utf-8'}));a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
