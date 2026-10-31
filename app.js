@@ -17,9 +17,58 @@ function load(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
 }catch(e){}}
 function context(){const Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return null;audioCtx=audioCtx||new Ctx();if(audioCtx.state==="suspended")audioCtx.resume();return audioCtx;}
 function tone(freq,duration,when,type,gain){if(!$('soundEnabled').checked)return;try{const c=context();if(!c)return;const osc=c.createOscillator(),amp=c.createGain(),start=c.currentTime+(when||0);osc.type=type||"sine";osc.frequency.setValueAtTime(freq,start);amp.gain.setValueAtTime(.0001,start);amp.gain.exponentialRampToValueAtTime(gain||.06,start+.02);amp.gain.exponentialRampToValueAtTime(.0001,start+duration);osc.connect(amp);amp.connect(c.destination);osc.start(start);osc.stop(start+duration+.03);}catch(e){}}
-function tick(){tone(600+Math.random()*350,.07,0,"triangle",.035);}
-function fanfare(){[523,659,784,1047,1319].forEach((f,i)=>tone(f,.48,i*.14,"sine",.095));[784,988,1175].forEach((f,i)=>tone(f,.65,.65+i*.12,"triangle",.045));}
-function startMusic(){if(musicTimer)return;context();$('musicBtn').textContent="♫ Stop background music";musicTimer=setInterval(()=>{if(!$('musicEnabled').checked){stopMusic();return;}const c=context();if(!c)return;const f=melody[musicStep++%melody.length];try{const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=f;g.gain.value=.012;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.24);}catch(e){}},330);}
+function tick(){
+ if(!$('soundEnabled').checked)return;
+ try{
+  const c=context();if(!c)return;
+  const t=c.currentTime;
+  const o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();
+  o.type="square";o.frequency.setValueAtTime(1450+Math.random()*450,t);
+  o.frequency.exponentialRampToValueAtTime(520,t+.055);
+  f.type="highpass";f.frequency.value=650;
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+.065);
+  o.connect(f);f.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.07);
+ }catch(e){}
+}
+function fanfare(){
+ if(!$('soundEnabled').checked)return;
+ // Original casino-style ascending jackpot chime, followed by a bright celebratory flourish.
+ const notes=[659,784,988,1319,1568,1976];
+ notes.forEach((f,i)=>tone(f,.34,i*.105,"triangle",.085));
+ [1047,1319,1568,2093].forEach((f,i)=>tone(f,.58,.78+i*.09,"sine",.07));
+ [784,988,1175].forEach((f,i)=>tone(f,.75,1.18+i*.12,"square",.022));
+}
+function startMusic(){
+ if(musicTimer)return;
+ context();$('musicBtn').textContent="♫ Stop background music";
+ // Original looping arcade/casino arpeggio with a soft low pulse and sparkling high notes.
+ const bass=[110,110,146.83,130.81,98,98,130.81,123.47];
+ const arp=[659,784,988,1175,988,784,587,784,988,1319,1175,988,784,659,784,988];
+ let step=0;
+ musicTimer=setInterval(()=>{
+  if(!$('musicEnabled').checked){stopMusic();return;}
+  const c=context();if(!c)return;
+  const t=c.currentTime;
+  try{
+   const f=arp[step%arp.length],b=bass[Math.floor(step/2)%bass.length];
+   const o=c.createOscillator(),g=c.createGain();
+   o.type="triangle";o.frequency.setValueAtTime(f,t);
+   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.018,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+.19);
+   o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.2);
+   if(step%2===0){
+    const bo=c.createOscillator(),bg=c.createGain();bo.type="sine";bo.frequency.setValueAtTime(b,t);
+    bg.gain.setValueAtTime(.0001,t);bg.gain.exponentialRampToValueAtTime(.025,t+.012);bg.gain.exponentialRampToValueAtTime(.0001,t+.22);
+    bo.connect(bg);bg.connect(c.destination);bo.start(t);bo.stop(t+.23);
+   }
+   if(step%4===3){
+    const ch=c.createOscillator(),cg=c.createGain();ch.type="sine";ch.frequency.setValueAtTime(1760,t);
+    cg.gain.setValueAtTime(.0001,t);cg.gain.exponentialRampToValueAtTime(.012,t+.006);cg.gain.exponentialRampToValueAtTime(.0001,t+.12);
+    ch.connect(cg);cg.connect(c.destination);ch.start(t);ch.stop(t+.13);
+   }
+   step++;
+  }catch(e){}
+ },165);
+}
 function stopMusic(){if(musicTimer){clearInterval(musicTimer);musicTimer=null;}$('musicBtn').textContent="♫ Start background music";}
 function download(filename,content,type){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([content],{type:type||'text/csv;charset=utf-8'}));a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function log(action,details){audit.push({action,details,time:new Date().toLocaleString()});}
@@ -45,7 +94,7 @@ document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()
 // Admin settings are intentionally hidden from the main navigation. Open with Ctrl+Shift+A, or click the title five times.
 let titleTapCount=0,titleTapReset=null;
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==='a'){e.preventDefault();setTab('admin');}});
-$('appTitle').addEventListener('click',()=>{titleTapCount++;clearTimeout(titleTapReset);titleTapReset=setTimeout(()=>titleTapCount=0,1800);if(titleTapCount>=5){titleTapCount=0;setTab('admin');message('Admin settings opened.');}});
+$('appTitle').addEventListener('click',()=>{titleTapCount++;clearTimeout(titleTapReset);titleTapReset=setTimeout(()=>titleTapCount=0,1800);if(titleTapCount>=5){titleTapCount=0;setTab('admin');message('');}});
 $('closeAdminBtn').addEventListener('click',()=>setTab('draw'));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('admin').classList.contains('hidden'))setTab('draw');});
 function showConfetti(){const layer=$('confetti');layer.innerHTML='';for(let i=0;i<90;i++){const p=document.createElement('i');p.textContent=['✦','●','■','★'][i%4];p.style.left=Math.random()*100+'%';p.style.animationDelay=(Math.random()*.9)+'s';p.style.setProperty('--drift',(Math.random()*180-90)+'px');layer.appendChild(p);}layer.classList.remove('hidden');setTimeout(()=>layer.classList.add('hidden'),4200);}
